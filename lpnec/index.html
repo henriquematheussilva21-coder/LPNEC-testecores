@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#52B4C6">
+    <title>LPNEC / UFPB - Teste de Cores</title>
+
+    <!-- Tipografia: Plus Jakarta Sans (títulos) + Inter (interface) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style2.css">
+    <!-- Biblioteca SortableJS para Drag & Drop em Desktop e Touch -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+
+    <div class="spectrum-bar" aria-hidden="true"></div>
+
+    <header style="cursor: pointer;" onclick="window.location.reload();" title="Voltar à tela inicial">
+        <img src="/logo lpnec - sem fundo.png" alt="Logo LPNEC" class="header-logo">
+        <h1>LPNEC - UFPB</h1>
+        <p>Laboratório de Percepção, Neurociências e Comportamento</p>
+    </header>
+
+    <!-- ETAPA 1: Cadastro Inicial -->
+    <div id="step-1" class="step card active">
+        <h2>Dados do Participante</h2>
+        <form id="form-cadastro">
+            <div class="form-group">
+                <label>Nome Completo:</label>
+                <input type="text" id="nome" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+                <label>Data de Nascimento:</label>
+                <input type="text" id="data-nascimento" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" autocomplete="bday" required>
+            </div>
+            <div class="form-group">
+                <label>Telefone de Contato:</label>
+                <input type="tel" id="telefone" placeholder="(83) 99999-9999" inputmode="tel" autocomplete="tel" required>
+            </div>
+            <div class="form-group">
+                <label>Sexo:</label>
+                <select id="sexo" required>
+                    <option value="">Selecione...</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="feminino">Feminino</option>
+                    <option value="prefiro_nao_dizer">Prefiro não dizer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Teste Indicado:</label>
+                <select id="tipo-teste" required>
+                    <option value="lanthony">Lanthony D-15 Dessaturado</option>
+                    <option value="farnsworth">Farnsworth D-15 Saturado</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button type="submit">Iniciar Teste</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ETAPA 2: Instruções -->
+    <div id="step-2" class="step card">
+        <h2>Instruções do Teste</h2>
+        <p style="line-height: 1.6; text-align: justify;">
+            O objetivo deste teste é organizar pequenos discos coloridos de acordo com a semelhança entre as suas cores.
+            Na ponta esquerda da sequência, você verá um disco fixo que serve como ponto de partida.
+            Observe todos os discos que estão dispostos na tela e escolha aquele cuja cor seja a mais parecida com a desse disco fixo, colocando-o logo ao lado dele.
+            Continue esse processo sucessivamente até formar uma fileira contínua até o final da sequência.
+        </p>
+        <div class="actions">
+            <button id="btn-iniciar-execucao">Continuar</button>
+        </div>
+    </div>
+
+    <!-- ETAPA 3: O Teste de Cores -->
+    <div id="step-3" class="step">
+        <div class="status-bar" id="attempt-counter" aria-live="polite">Tentativa 1 de 3</div>
+
+        <div class="board-container">
+            <div class="board-label">Sequência Ordenada</div>
+            <div class="target-slots-wrapper">
+                <div class="fixed-piece-slot">
+                    <div id="fixed-container"></div>
+                    <span class="fixed-piece-label">Início</span>
+                </div>
+                <div class="target-slots" id="target-slots"></div>
+            </div>
+        </div>
+
+        <div class="pieces-pool-container">
+            <div class="board-label">Peças Disponíveis (3 Fileiras)</div>
+            <div class="pieces-grid" id="pieces-pool"></div>
+        </div>
+
+        <div class="actions">
+            <button id="btn-submit">Finalizar</button>
+            <button id="btn-reset" class="secondary">Reiniciar Posições</button>
+        </div>
+    </div>
+
+    <!-- ETAPA 4: Pesquisa de Preferência -->
+    <div id="step-4" class="step card">
+        <h2>Preferência de Cores</h2>
+        <p>1. Dentre essas cores, qual você <strong>MAIS</strong> gosta?</p>
+        <div class="pieces-grid" id="pref-like-grid"></div>
+        <br>
+        <p>2. Dentre essas cores, qual você <strong>MENOS</strong> gosta?</p>
+        <div class="pieces-grid" id="pref-dislike-grid"></div>
+        <div class="actions">
+            <button id="btn-salvar-preferencias">Enviar Respostas</button>
+        </div>
+    </div>
+
+    <!-- ETAPA 5: Finalização -->
+    <div id="step-5" class="step card" style="text-align: center;">
+        <h2>Obrigado pela Participação!</h2>
+        <p>O Laboratório de Percepção, Neurociências e Comportamento agradece sua participação. A devolutiva dos testes será enviada em breve no seu número de contato.</p>
+        <p><strong>Contato:</strong> <a href="mailto:lablpnec@gmail.com">lablpnec@gmail.com</a></p>
+    </div>
+
+    <!-- Modal de Alerta sem revelação do gabarito -->
+    <div class="modal-overlay" id="feedback-modal">
+        <div class="modal" role="alertdialog" aria-labelledby="modal-title" aria-describedby="modal-message">
+            <h3 id="modal-title">Atenção</h3>
+            <p id="modal-message">A sequência de cores está incorreta. Você tem mais 2 tentativas.</p>
+            <button id="modal-btn">Tentar novamente</button>
+        </div>
+    </div>
+
+    <!-- Scripts da aplicação -->
+    <script src="js/colors.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
