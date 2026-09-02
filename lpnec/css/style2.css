@@ -93,8 +93,7 @@ img, svg {
   --color-border: #E2E8F0;
   --color-border-strong: #CBD5E1;
 
-  /* Elevação — a base (--shadow-sm) segue exatamente o valor definido no
-     briefing de design para preservar o conforto óptico das superfícies. */
+
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.03);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.07);
@@ -107,7 +106,7 @@ img, svg {
   --radius-lg: 22px;
   --radius-pill: 999px;
 
-  /* Tipografia — display para títulos, corpo para UI/leitura */
+
   --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
@@ -336,10 +335,10 @@ button.secondary:hover {
 }
 
 /* ==========================================================================
-   AJUSTES EXCLUSIVOS PARA DESKTOP (Telas maiores que 768px)
+   AJUSTES EXCLUSIVOS DESKTOP (Telas maiores que 768px)
    ========================================================================== */
 @media (min-width: 768px) {
-  /* Reduz o cabeçalho apenas no PC para ganhar espaço */
+  /* Reduz o cabeçalho no PC para ganho de espaço */
   header {
     padding: 1.5rem 1.5rem 1.25rem;
   }
@@ -541,8 +540,6 @@ button.secondary:hover {
   box-shadow: var(--shadow-piece-lift);
 }
 
-/* Resposta imediata ao toque, para o clique-pra-mover (independente do
-   arraste) — :hover sozinho não é confiável em telas touch */
 #pieces-pool .color-piece:active,
 #target-slots .color-piece:active {
   transform: scale(0.94);
