@@ -1,0 +1,702 @@
+@charset "UTF-8";
+/* ==========================================================================
+   Sumário
+   1.  Reset & Base
+   2.  Tokens de Design (variáveis)
+   3.  Cabeçalho institucional
+   4.  Steps & Cards (estrutura compartilhada)
+   5.  Botões (compartilhado entre todas as etapas)
+   6.  Etapa 1 — Formulário de Cadastro
+   7.  Etapa 2 — Instruções
+   8.  Etapa 3 — Área Principal do Teste
+   9. Etapa 4 — Preferência de Cores
+   10. Etapa 5 — Finalização
+   11. Modal de Aviso
+   12. Acessibilidade & Refinamentos finais
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Reset & Base
+   -------------------------------------------------------------------------- */
+
+.header-logo {
+  max-height: 85px;
+  width: auto;
+  margin: 0 auto 0.65rem auto;
+  object-fit: contain;
+
+}
+
+.header-tag {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary-hover);
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+button {
+  font-family: inherit;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Tokens de Design
+   -------------------------------------------------------------------------- */
+:root {
+  /* Cores institucionais */
+  --color-bg: #F1F5F9;
+  --color-surface: #FFFFFF;
+  --color-primary: #52B4C6;
+  --color-primary-light: #81C7D4;
+  --color-primary-hover: #227D91;
+  --color-primary-soft: #E7F5F7;
+  --color-ink: #0F2A33;
+  --color-text: #33475A;
+  --color-text-muted: #64748B;
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
+
+  /* Elevação — a base (--shadow-sm) segue exatamente o valor definido no
+     briefing de design para preservar o conforto óptico das superfícies. */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.16);
+  --shadow-piece: 0 2px 6px rgba(0, 0, 0, 0.10);
+  --shadow-piece-lift: 0 14px 26px rgba(0, 0, 0, 0.18);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* Tipografia — display para títulos, corpo para UI/leitura */
+  --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --piece-size: 60px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-base: 240ms;
+}
+
+@media (max-width: 600px) {
+  :root { --piece-size: 50px; }
+}
+@media (max-width: 380px) {
+  :root { --piece-size: 42px; }
+}
+@media (max-width: 340px) {
+  :root { --piece-size: 38px; }
+}
+
+.spectrum-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    #F3C4B4 0%,
+    #F4DE9C 22%,
+    #B7E3B4 44%,
+    #9ED2E3 66%,
+    #B7B7E3 88%,
+    #E2B3CE 100%
+  );
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Cabeçalho institucional
+   -------------------------------------------------------------------------- */
+header {
+  text-align: center;
+  padding: 2.75rem 1.5rem 2.25rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+header:hover {
+  background-color: #FAFCFD;
+}
+header:active {
+  background-color: var(--color-primary-soft);
+}
+
+header h1 {
+  font-size: clamp(1.5rem, 1.15rem + 1.5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+header p {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  header { padding: 2rem 1.25rem 1.75rem; }
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Steps & Cards — estrutura compartilhada
+   -------------------------------------------------------------------------- */
+.step {
+  display: none;
+  width: 100%;
+}
+
+.step.active {
+  display: block;
+  animation: step-in var(--dur-base) var(--ease) both;
+}
+
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  background: var(--color-surface);
+  width: 95%;
+  max-width: 600px;
+  margin: 2.5rem auto;
+  padding: 2.75rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(15, 23, 42, 0.03);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.75rem;
+}
+
+@media (max-width: 640px) {
+  .card {
+    margin: 1.5rem auto;
+    padding: 1.75rem 1.5rem;
+    border-radius: var(--radius-md);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   5. Botões
+   -------------------------------------------------------------------------- */
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: var(--radius-pill);
+  padding: 0.9rem 2.25rem;
+  background: var(--color-primary);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+
+button:hover {
+  background: var(--color-primary-hover);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-xs);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--color-text);
+  box-shadow: none;
+  border: 1.5px solid var(--color-border-strong);
+}
+
+button.secondary:hover {
+  background: #F8FAFC;
+  border-color: var(--color-text-muted);
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   6. Etapa 1 — Formulário de Cadastro
+   -------------------------------------------------------------------------- */
+.form-group {
+  margin-bottom: 1.375rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+
+.form-group input::placeholder {
+  color: #A3AEBD;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.75rem;
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 8l5 5 5-5' stroke='%2364748B' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   AJUSTES EXCLUSIVOS PARA DESKTOP (Telas maiores que 768px)
+   ========================================================================== */
+@media (min-width: 768px) {
+  /* Reduz o cabeçalho apenas no PC para ganhar espaço */
+  header {
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+
+  /* Transforma o formulário em 2 colunas */
+  #form-cadastro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-group {
+    margin-bottom: 0; 
+  }
+
+  #form-cadastro .form-group:nth-child(1),
+  #form-cadastro .actions {
+    grid-column: 1 / -1;
+  }
+  
+  #form-cadastro .actions {
+    margin-top: 0.5rem;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   7. Etapa 2 — Instruções
+   -------------------------------------------------------------------------- */
+#step-2 p {
+  color: var(--color-text);
+  font-size: 1.02rem;
+  max-width: 52ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Etapa 3 — Área Principal do Teste
+   -------------------------------------------------------------------------- */
+
+#step-3 {
+  max-width: 1150px;
+  width: 95%;
+  margin: 2rem auto;
+  padding: 0 1rem 3rem;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.status-bar {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 auto 1.75rem;
+  padding: 0.5rem 1.15rem;
+  background: var(--color-ink);
+  color: var(--color-primary-soft);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.board-container,
+.pieces-pool-container {
+  background: var(--color-surface);
+  border: 1px solid rgba(15, 23, 42, 0.03);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.board-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+.target-slots-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  background: linear-gradient(180deg, #EEF3F6, #F8FAFC);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 5px rgba(15, 23, 42, 0.045);
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-width: none; /* Oculta no Firefox */
+}
+
+.target-slots-wrapper::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.target-slots-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.fixed-piece-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  padding-right: 0.65rem;
+  border-right: 1.5px dashed var(--color-border-strong);
+}
+
+.fixed-piece-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary-hover);
+}
+
+#fixed-container {
+  width: var(--piece-size);
+  height: var(--piece-size);
+  flex-shrink: 0;
+}
+
+#target-slots {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: var(--piece-size);
+  flex: 1;
+  width: 100%
+}
+
+#target-slots:empty::before {
+  content: "Toque ou arraste as peças até aqui →";
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  padding-left: 0.4rem;
+}
+
+#target-slots > .color-piece {
+  width: var(--piece-size);
+  height: var(--piece-size);
+  flex-shrink: 0;
+}
+
+.pieces-grid {
+  display: grid;
+  gap: clamp(8px, 2.4vw, 16px);
+  justify-content: center;
+}
+
+#pieces-pool {
+  grid-template-columns: repeat(5, var(--piece-size));
+  grid-auto-rows: var(--piece-size);
+}
+
+#pieces-pool .color-piece {
+  width: 100%;
+  height: 100%;
+}
+
+.color-piece {
+  border-radius: 16px;
+  border: 3px solid #FFFFFF;
+  box-shadow: var(--shadow-piece), 0 0 0 1px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+
+#pieces-pool .color-piece,
+#target-slots .color-piece {
+  cursor: grab;
+}
+
+#pieces-pool .color-piece:hover,
+#target-slots .color-piece:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-piece-lift);
+}
+
+/* Resposta imediata ao toque, para o clique-pra-mover (independente do
+   arraste) — :hover sozinho não é confiável em telas touch */
+#pieces-pool .color-piece:active,
+#target-slots .color-piece:active {
+  transform: scale(0.94);
+  transition-duration: 80ms;
+}
+
+#fixed-container .color-piece {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  box-shadow: var(--shadow-piece), 0 0 0 3px var(--color-primary-light);
+}
+#fixed-container .color-piece:hover {
+  transform: none;
+}
+
+#pieces-pool .color-piece.sortable-chosen,
+#target-slots .color-piece.sortable-chosen {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-piece-lift);
+  cursor: grabbing;
+  z-index: 30;
+}
+.sortable-ghost {
+  opacity: 0.3;
+}
+.sortable-drag {
+  box-shadow: var(--shadow-piece-lift);
+}
+
+@media (max-width: 640px) {
+  #step-3 { padding: 0 1rem 2.5rem; }
+  .board-container,
+  .pieces-pool-container { padding: 1.25rem; }
+}
+
+
+/* --------------------------------------------------------------------------
+   9. Etapa 4 — Preferência de Cores
+   -------------------------------------------------------------------------- */
+#step-4 p {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+#step-4 strong {
+  color: var(--color-primary-hover);
+  font-weight: 800;
+}
+
+#pref-like-grid,
+#pref-dislike-grid {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 340px;
+  margin: 0 auto 0.5rem;
+}
+
+#pref-like-grid .color-piece,
+#pref-dislike-grid .color-piece {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 0 0 3px #FFFFFF, var(--shadow-piece), 0 0 0 4px rgba(15, 23, 42, 0.05);
+  transition: transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
+}
+
+#pref-like-grid .color-piece:hover,
+#pref-dislike-grid .color-piece:hover {
+  transform: translateY(-2px);
+}
+
+
+/* --------------------------------------------------------------------------
+   10. Etapa 5 — Finalização
+   -------------------------------------------------------------------------- */
+#step-5 p {
+  color: var(--color-text);
+  font-size: 1.02rem;
+}
+
+#step-5 a {
+  color: var(--color-primary-hover);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--color-primary-light);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+#step-5 a:hover {
+  border-color: var(--color-primary-hover);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. Modal de Aviso
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  padding: 2.25rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  animation: modal-in var(--dur-base) var(--ease) both;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.modal p {
+  color: var(--color-text);
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+
+.modal button {
+  width: 100%;
+}
+
+
+/* --------------------------------------------------------------------------
+   12. Acessibilidade & Refinamentos finais
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .step.active,
+  .modal {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
