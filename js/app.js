@@ -240,9 +240,9 @@ function showModal(title, msg, btn) {
 function enviarDadosParaEmail() {
     return new Promise((resolve, reject) => {
         const payloadData = {
-            service_id: 'service_78v393a',
+            service_id: 'service_t8pztfq',
             template_id: 'template_vjmoh2w',
-            user_id: '5tzTvMS0PZNU2WkSa', // Sua Public Key
+            user_id: '5tzTvMS0PZNU2WkSa',
             template_params: {
                 nome: sessionData.participante.nome,
                 data_nascimento: sessionData.participante.dataNascimento,
