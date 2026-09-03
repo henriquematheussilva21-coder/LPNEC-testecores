@@ -10,8 +10,17 @@ let currentAttempt = 1;
 const maxAttempts = 3;
 let sortableTarget, sortablePool;
 
-document.addEventListener('DOMContentLoaded', () => {
-    emailjs.init("5tzTvMS0PZNU2WkSa");
+document.jsdelivr_init_safe = document.addEventListener('DOMContentLoaded', () => {
+    // Tenta inicializar o EmailJS de forma segura
+    try {
+        if (typeof emailjs !== 'undefined') {
+            emailjs.init("5tzTvMS0PZNU2WkSa");
+        } else {
+            console.warn("EmailJS não carregado ou bloqueado pela rede.");
+        }
+    } catch (e) {
+        console.error("Erro ao iniciar EmailJS:", e);
+    }
 
     setupFormCadastro();
     setupMascaraData();
