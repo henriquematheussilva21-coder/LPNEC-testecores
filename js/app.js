@@ -105,7 +105,7 @@ function initTestBoard() {
         group: 'colors',
         animation: 150,
         forceFallback: true,      
-        fallbackOnBody: true,     
+        fallbackOnBody: false,     
         fallbackTolerance: 5,     
         delay: 150,               
         delayOnTouchOnly: true,   
