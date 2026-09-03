@@ -91,6 +91,7 @@ function initTestBoard() {
     targetSlots.innerHTML = '';
     piecesPool.innerHTML = '';
 
+    // Peça Fixa 0
     fixedContainer.appendChild(createPieceElement(palette[0]));
 
     const shuffled = [...palette.slice(1)].sort(() => Math.random() - 0.5);
@@ -237,6 +238,7 @@ function showModal(title, msg, btn) {
     document.getElementById('feedback-modal').classList.add('active');
 }
 
+// INTEGRAÇÃO DE E-MAIL
 function enviarDadosParaEmail() {
     return new Promise((resolve, reject) => {
         const payload = {
@@ -259,4 +261,28 @@ function enviarDadosParaEmail() {
                 reject(error);
             });
     });
+
+    function enviarDadosParaEmail() {
+    return new Promise((resolve, reject) => {
+        const payload = {
+            nome: sessionData.participante.nome,
+            data_nascimento: sessionData.participante.dataNascimento,
+            telefone: sessionData.participante.telefone,
+            sexo: sessionData.participante.sexo,
+            teste_realizado: sessionData.testeSelecionado.toUpperCase(),
+            tentativas_log: JSON.stringify(sessionData.tentativas, null, 2),
+            preferencia_mais: sessionData.preferencias.maisGostou,
+            preferencia_menos: sessionData.preferencias.menosGostou
+        };
+
+        emailjs.send('service_78v393a', 'template_vjmoh2w', payload)
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+                resolve();
+            }, function(error) {
+                console.log('FAILED...', error);
+                reject(error);
+            });
+    });
+}
 }
