@@ -10,18 +10,7 @@ let currentAttempt = 1;
 const maxAttempts = 3;
 let sortableTarget, sortablePool;
 
-document.jsdelivr_init_safe = document.addEventListener('DOMContentLoaded', () => {
-    // Tenta inicializar o EmailJS de forma segura
-    try {
-        if (typeof emailjs !== 'undefined') {
-            emailjs.init("5tzTvMS0PZNU2WkSa");
-        } else {
-            console.warn("EmailJS não carregado ou bloqueado pela rede.");
-        }
-    } catch (e) {
-        console.error("Erro ao iniciar EmailJS:", e);
-    }
-
+document.addEventListener('DOMContentLoaded', () => {
     setupFormCadastro();
     setupMascaraData();
     setupMascaraTelefone();
@@ -247,27 +236,46 @@ function showModal(title, msg, btn) {
     document.getElementById('feedback-modal').classList.add('active');
 }
 
-// INTEGRAÇÃO DE E-MAIL
+// INTEGRAÇÃO DE E-MAIL VIA API REST NATIVA (Sem dependência de SDK externo)
 function enviarDadosParaEmail() {
     return new Promise((resolve, reject) => {
-        const payload = {
-            nome: sessionData.participante.nome,
-            data_nascimento: sessionData.participante.dataNascimento,
-            telefone: sessionData.participante.telefone,
-            sexo: sessionData.participante.sexo,
-            teste_realizado: sessionData.testeSelecionado.toUpperCase(),
-            tentativas_log: JSON.stringify(sessionData.tentativas, null, 2),
-            preferencia_mais: sessionData.preferencias.maisGostou,
-            preferencia_menos: sessionData.preferencias.menosGostou
+        const payloadData = {
+            service_id: 'service_78v393a',
+            template_id: 'template_vjmoh2w',
+            user_id: '5tzTvMS0PZNU2WkSa', // Sua Public Key
+            template_params: {
+                nome: sessionData.participante.nome,
+                data_nascimento: sessionData.participante.dataNascimento,
+                telefone: sessionData.participante.telefone,
+                sexo: sessionData.participante.sexo,
+                teste_realizado: sessionData.testeSelecionado.toUpperCase(),
+                tentativas_log: JSON.stringify(sessionData.tentativas, null, 2),
+                preferencia_mais: sessionData.preferencias.maisGostou,
+                preferencia_menos: sessionData.preferencias.menosGostou
+            }
         };
 
-        emailjs.send('service_78v393a', 'template_vjmoh2w', payload)
-            .then(function(response) {
-                console.log('SUCCESS!', response.status, response.text);
+        fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payloadData)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('SUCCESS! E-mail disparado com sucesso via REST API.');
                 resolve();
-            }, function(error) {
-                console.log('FAILED...', error);
-                reject(error);
-            });
+            } else {
+                response.text().then(errorText => {
+                    console.error('FAILED...', errorText);
+                    reject(errorText);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('NETWORK ERROR...', error);
+            reject(error);
+        });
     });
 }
