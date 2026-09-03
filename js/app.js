@@ -11,21 +11,20 @@ const maxAttempts = 3;
 let sortableTarget, sortablePool;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar o EmailJS com a Public Key
+    // emailjs.init("YOUR_PUBLIC_KEY"); 
+    
     setupFormCadastro();
     setupMascaraData();
     setupMascaraTelefone();
     setupEventListeners();
 });
 
-// Máscara e validação automática para o Telefone (DD) 9XXXX-XXXX
 function setupMascaraTelefone() {
     const inputTelefone = document.getElementById('telefone');
-    
     inputTelefone.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
-        
-        if (value.length > 11) value = value.slice(0, 11); // Limita a 11 dígitos
-        
+        let value = e.target.value.replace(/\D/g, ''); 
+        if (value.length > 11) value = value.slice(0, 11); 
         if (value.length > 10) {
             value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
         } else if (value.length > 6) {
@@ -35,40 +34,32 @@ function setupMascaraTelefone() {
         } else if (value.length > 0) {
             value = value.replace(/^(\d{0,2})/, '($1');
         }
-        
         e.target.value = value;
     });
 }
 
-// Máscara e validação automática para a Data de Nascimento em PT-BR (DD/MM/AAAA)
 function setupMascaraData() {
     const inputData = document.getElementById('data-nascimento');
-    
     inputData.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+        let value = e.target.value.replace(/\D/g, '');
         if (value.length > 8) value = value.slice(0, 8);
-
         if (value.length > 4) {
             value = value.replace(/^(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3');
         } else if (value.length > 2) {
             value = value.replace(/^(\d{2})(\d{0,2})/, '$1/$2');
         }
-
         e.target.value = value;
     });
 }
 
-// Transição entre Etapas
 function goToStep(stepNumber) {
     document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
     document.getElementById(`step-${stepNumber}`).classList.add('active');
 }
 
-// Etapa 1: Cadastro
 function setupFormCadastro() {
     document.getElementById('form-cadastro').addEventListener('submit', (e) => {
         e.preventDefault();
-        
         const dataInput = document.getElementById('data-nascimento').value;
         if (dataInput.length < 10) {
             alert('Por favor, informe a data de nascimento completa no formato DD/MM/AAAA.');
@@ -91,7 +82,6 @@ function setupFormCadastro() {
     });
 }
 
-// Etapa 3: Inicialização do Teste
 function initTestBoard() {
     const palette = COLOR_PALETTES[sessionData.testeSelecionado];
     const fixedContainer = document.getElementById('fixed-container');
@@ -102,25 +92,13 @@ function initTestBoard() {
     targetSlots.innerHTML = '';
     piecesPool.innerHTML = '';
 
-    // Peça Fixa 0
     fixedContainer.appendChild(createPieceElement(palette[0]));
 
-    // 15 peças móveis embaralhadas
     const shuffled = [...palette.slice(1)].sort(() => Math.random() - 0.5);
     shuffled.forEach(data => piecesPool.appendChild(createPieceElement(data)));
 
     if (sortableTarget) sortableTarget.destroy();
     if (sortablePool) sortablePool.destroy();
-
-    const sortableOptions = {
-        group: 'colors',
-        animation: 150,
-        forceFallback: true,      
-        fallbackOnBody: true,     
-        fallbackTolerance: 5,
-        delay: 150,
-        delayOnTouchOnly: true
-    };
 
     sortableTarget = new Sortable(targetSlots, { group: 'colors', animation: 150 });
     sortablePool = new Sortable(piecesPool, { group: 'colors', animation: 150 });
@@ -130,9 +108,8 @@ function createPieceElement(data) {
     const div = document.createElement('div');
     div.className = 'color-piece' + (data.fixed ? ' fixed' : '');
     div.style.backgroundColor = data.hex;
-    div.dataset.id = data.id; // ID Oculto do participante
+    div.dataset.id = data.id;
 
-    // Adiciona o evento de clique (se não for a peça fixa)
     if (!data.fixed) {
         div.addEventListener('click', function() {
             const targetSlots = document.getElementById('target-slots');
@@ -140,7 +117,6 @@ function createPieceElement(data) {
 
             if (this.parentNode === pool) {
                 targetSlots.appendChild(this);
-                
                 const wrapper = document.querySelector('.target-slots-wrapper');
                 if (wrapper) {
                     setTimeout(() => {
@@ -148,20 +124,16 @@ function createPieceElement(data) {
                             left: wrapper.scrollWidth,
                             behavior: 'smooth'
                         });
-                    }, 50); // Breve atraso para o navegador desenhar a peça antes de medir o espaço
+                    }, 50); 
                 }
-            } 
-            // Se a peça já estiver no trilho de cima, devolve para o painel de baixo
-            else if (this.parentNode === targetSlots) {
+            } else if (this.parentNode === targetSlots) {
                 pool.appendChild(this);
             }
         });
     }
-
     return div;
 }
 
-// Validação silenciosa (sem expor erros)
 function validateTest() {
     const targetSlots = document.getElementById('target-slots');
     const piecesInTarget = targetSlots.querySelectorAll('.color-piece');
@@ -178,9 +150,9 @@ function validateTest() {
 
     sessionData.tentativas.push({
         tentativa: currentAttempt,
-        sequencia: userSeq,
-        correto: isCorrect,
-        timestamp: new Date().toISOString()
+        sequencia: userSeq.join(', '), // Formatado para melhor leitura na planilha
+        correto: isCorrect ? 'Sim' : 'Não',
+        timestamp: new Date().toLocaleString('pt-BR')
     });
 
     if (isCorrect || currentAttempt >= maxAttempts) {
@@ -188,15 +160,13 @@ function validateTest() {
         goToStep(4);
     } else {
         const remaining = maxAttempts - currentAttempt;
-        
-        showModal('Atenção', `Você tem mais ${remaining} tentativa(s).`, 'Tentar novamente');
+        showModal('Atenção', `A sequência de cores está incorreta.\nVocê tem mais ${remaining} tentativa(s).`, 'Tentar novamente');
         
         currentAttempt++;
         document.getElementById('attempt-counter').innerText = `Tentativa ${currentAttempt} de 3`;
     }
 }
 
-// Etapa 4: Preferências de Cores
 function setupPreferenciasPage() {
     const palette = COLOR_PALETTES[sessionData.testeSelecionado];
     const likeGrid = document.getElementById('pref-like-grid');
@@ -231,13 +201,23 @@ function setupEventListeners() {
         document.getElementById('feedback-modal').classList.remove('active');
     });
     
-    document.getElementById('btn-salvar-preferencias').addEventListener('click', () => {
+    document.getElementById('btn-salvar-preferencias').addEventListener('click', (e) => {
+        const btn = e.target;
         if (sessionData.preferencias.maisGostou === null || sessionData.preferencias.menosGostou === null) {
             alert('Por favor, selecione as duas preferências antes de continuar.');
             return;
         }
-        console.log('Payload Final do Participante:', JSON.stringify(sessionData, null, 2));
-        goToStep(5);
+        
+        btn.innerText = 'Enviando...';
+        btn.disabled = true;
+        
+        enviarDadosParaEmail().then(() => {
+            goToStep(5);
+        }).catch((err) => {
+            console.error(err);
+            alert("Ocorreu um erro ao enviar os dados. O teste será finalizado mesmo assim.");
+            goToStep(5);
+        });
     });
 }
 

@@ -1,5 +1,5 @@
 const COLOR_PALETTES = {
-    // Farnsworth D-15 (Saturado)
+    // Farnsworth D-15
     farnsworth: [
         { id: 0,  hex: "rgb(55, 129, 193)", fixed: true },
         { id: 1,  hex: "rgb(54, 131, 185)", fixed: false },
@@ -19,7 +19,7 @@ const COLOR_PALETTES = {
         { id: 15, hex: "rgb(128, 115, 178)", fixed: false }
     ],
 
-// Lanthony D-15 (Dessaturado) 
+    // Lanthony D-15
     lanthony: [
         { id: 0,  hex: "rgb(161, 203, 243)", fixed: true },
         { id: 1,  hex: "rgb(161, 205, 238)", fixed: false },
