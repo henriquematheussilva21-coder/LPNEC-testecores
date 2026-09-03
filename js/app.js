@@ -11,9 +11,8 @@ const maxAttempts = 3;
 let sortableTarget, sortablePool;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar o EmailJS com a Public Key
-    // emailjs.init("YOUR_PUBLIC_KEY"); 
-    
+    emailjs.init("5tzTvMS0PZNU2WkSa");
+
     setupFormCadastro();
     setupMascaraData();
     setupMascaraTelefone();
@@ -104,17 +103,18 @@ function initTestBoard() {
     const sortableOptions = {
         group: 'colors',
         animation: 150,
-        forceFallback: true,      
-        fallbackOnBody: false,     
-        fallbackTolerance: 5,     
-        delay: 150,               
-        delayOnTouchOnly: true,   
-        swapThreshold: 0.65       
+        forceFallback: true,
+        fallbackOnBody: false,
+        fallbackTolerance: 5,
+        delay: 150,
+        delayOnTouchOnly: true,
+        swapThreshold: 0.65
     };
 
     sortableTarget = new Sortable(targetSlots, sortableOptions);
     sortablePool = new Sortable(piecesPool, sortableOptions);
 }
+
 function createPieceElement(data) {
     const div = document.createElement('div');
     div.className = 'color-piece' + (data.fixed ? ' fixed' : '');
@@ -135,7 +135,7 @@ function createPieceElement(data) {
                             left: wrapper.scrollWidth,
                             behavior: 'smooth'
                         });
-                    }, 50); 
+                    }, 50);
                 }
             } else if (this.parentNode === targetSlots) {
                 pool.appendChild(this);
@@ -161,7 +161,7 @@ function validateTest() {
 
     sessionData.tentativas.push({
         tentativa: currentAttempt,
-        sequencia: userSeq.join(', '), // Formatado para melhor leitura na planilha
+        sequencia: userSeq.join(', '),
         correto: isCorrect ? 'Sim' : 'Não',
         timestamp: new Date().toLocaleString('pt-BR')
     });
@@ -182,7 +182,6 @@ function setupPreferenciasPage() {
     const palette = COLOR_PALETTES[sessionData.testeSelecionado];
     const likeGrid = document.getElementById('pref-like-grid');
     const dislikeGrid = document.getElementById('pref-dislike-grid');
-
     likeGrid.innerHTML = '';
     dislikeGrid.innerHTML = '';
 
@@ -211,14 +210,14 @@ function setupEventListeners() {
     document.getElementById('modal-btn').addEventListener('click', () => {
         document.getElementById('feedback-modal').classList.remove('active');
     });
-    
+
     document.getElementById('btn-salvar-preferencias').addEventListener('click', (e) => {
         const btn = e.target;
         if (sessionData.preferencias.maisGostou === null || sessionData.preferencias.menosGostou === null) {
             alert('Por favor, selecione as duas preferências antes de continuar.');
             return;
         }
-        
+
         btn.innerText = 'Enviando...';
         btn.disabled = true;
         
@@ -237,4 +236,29 @@ function showModal(title, msg, btn) {
     document.getElementById('modal-message').innerText = msg;
     document.getElementById('modal-btn').innerText = btn;
     document.getElementById('feedback-modal').classList.add('active');
+}
+
+// INTEGRAÇÃO DE E-MAIL
+function enviarDadosParaEmail() {
+    return new Promise((resolve, reject) => {
+        const payload = {
+            nome: sessionData.participante.nome,
+            data_nascimento: sessionData.participante.dataNascimento,
+            telefone: sessionData.participante.telefone,
+            sexo: sessionData.participante.sexo,
+            teste_realizado: sessionData.testeSelecionado.toUpperCase(),
+            tentativas_log: JSON.stringify(sessionData.tentativas, null, 2),
+            preferencia_mais: sessionData.preferencias.maisGostou,
+            preferencia_menos: sessionData.preferencias.menosGostou
+        };
+
+        emailjs.send('service_78v393a', 'template_vjmoh2w', payload)
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+                resolve();
+            }, function(error) {
+                console.log('FAILED...', error);
+                reject(error);
+            });
+    });
 }
