@@ -92,6 +92,7 @@ function initTestBoard() {
     targetSlots.innerHTML = '';
     piecesPool.innerHTML = '';
 
+    // Peça Fixa 0
     fixedContainer.appendChild(createPieceElement(palette[0]));
 
     const shuffled = [...palette.slice(1)].sort(() => Math.random() - 0.5);
@@ -100,10 +101,20 @@ function initTestBoard() {
     if (sortableTarget) sortableTarget.destroy();
     if (sortablePool) sortablePool.destroy();
 
-    sortableTarget = new Sortable(targetSlots, { group: 'colors', animation: 150 });
-    sortablePool = new Sortable(piecesPool, { group: 'colors', animation: 150 });
-}
+    const sortableOptions = {
+        group: 'colors',
+        animation: 150,
+        forceFallback: true,      
+        fallbackOnBody: true,     
+        fallbackTolerance: 5,     
+        delay: 150,               
+        delayOnTouchOnly: true,   
+        swapThreshold: 0.65       
+    };
 
+    sortableTarget = new Sortable(targetSlots, sortableOptions);
+    sortablePool = new Sortable(piecesPool, sortableOptions);
+}
 function createPieceElement(data) {
     const div = document.createElement('div');
     div.className = 'color-piece' + (data.fixed ? ' fixed' : '');
